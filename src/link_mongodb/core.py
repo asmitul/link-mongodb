@@ -1,19 +1,17 @@
-from typing import List, Optional, Dict
+from typing import Optional, List, Dict, Any
 from pymongo import MongoClient, errors
 
-def find_one(mongodb_uri: str, database_name: str, collection_name: str, filter: Dict) -> Optional[Dict]:
+def find_one(mongodb_uri: str, database_name: str, collection_name: str, filter: Dict) -> Optional[Any]:
     """
-    Find a single document in the MongoDB collection that matches the provided filter.
-
+    Find a single document in a MongoDB collection based on the provided filter.
     Args:
-        mongodb_uri (str): The URI for connecting to the MongoDB server.
-        database_name (str): The name of the database in which the collection resides.
-        collection_name (str): The name of the collection to search in.
-        filter (Dict): A dictionary specifying the filter to apply when searching for a document.
-
+        mongodb_uri (str): The URI of the MongoDB server.
+        database_name (str): The name of the database containing the collection.
+        collection_name (str): The name of the collection to search.
+        filter (Dict): The filter used to match documents in the collection.
     Returns:
-        Optional[Dict]: A dictionary representing the matching document if found, or None if not found.
-
+        Any | None: The matching document if found, otherwise None.
+        
     Raises:
         Exception: If an error occurs while querying the MongoDB collection.
     """
@@ -24,8 +22,8 @@ def find_one(mongodb_uri: str, database_name: str, collection_name: str, filter:
         try:
             print(f"Executing find_one query with filter: {filter}")
             result = collection.find_one(filter=filter)
-            print(f"Query result: {result}")
             return result
+
         except errors.PyMongoError as e:
             raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
 
@@ -54,7 +52,7 @@ def find_all(mongodb_uri: str, database_name: str, collection_name: str, filter:
         try:
             print(f"Executing find_all query with filter: {filter}")
             result = list(collection.find(filter=filter))
-            print(f"Query result: {result}")
+            print(f"result: {result}")
             return result
         except errors.PyMongoError as e:
             raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
@@ -82,12 +80,13 @@ def insert_one(mongodb_uri: str, database_name: str, collection_name: str, docum
         try:
             print(f"Executing insert_one query with document: {document}")
             result = collection.insert_one(document)
-            print(f"Query result: {result}")
-            return result
+            result_dict = collection.find_one({"_id": result.inserted_id})
+            print(f"result: {result_dict}")
+            return result_dict
         except errors.PyMongoError as e:
             raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
         
-def insert_many(mongodb_uri: str, database_name: str, collection_name: str, documents: List[Dict]) -> Optional[List[Dict]]:
+def insert_many(mongodb_uri: str, database_name: str, collection_name: str, documents: List[Dict]) -> Optional[List]:
     """
     Inserts multiple documents into a MongoDB collection.
 
@@ -98,7 +97,7 @@ def insert_many(mongodb_uri: str, database_name: str, collection_name: str, docu
         documents (List[Dict]): The documents to be inserted.
 
     Returns:
-        Optional[List[Dict]]: The result of the insert operation as a list of dictionaries, or None if an error occurred.
+        Optional[List]: The result of the insert operation as a list of dictionaries, or None if an error occurred.
 
     Raises:
         Exception: If an error occurs while querying the MongoDB collection.
@@ -110,8 +109,8 @@ def insert_many(mongodb_uri: str, database_name: str, collection_name: str, docu
         try:
             print(f"Executing insert_many query with documents: {documents}")
             result = collection.insert_many(documents)
-            print(f"Query result: {result}")
-            return result
+            print(f"ids of the inserted document: {result.inserted_ids}")
+            return result.inserted_ids
         except errors.PyMongoError as e:
             raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
         
@@ -140,8 +139,8 @@ def update_one(mongodb_uri: str, database_name: str, collection_name: str, filte
         try:
             print(f"Executing update_one query with filter: {filter} and update: {update}")
             result = collection.update_one(filter=filter, update=update)
-            print(f"Query result: {result}")
-            return result
+            result_dict = result.raw_result
+            print(f"result: {result_dict}")
         except errors.PyMongoError as e:
             raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
 
@@ -169,8 +168,8 @@ def update_many(mongodb_uri: str, database_name: str, collection_name: str, filt
         try:
             print(f"Executing update_many query with filter: {filter} and update: {update}")
             result = collection.update_many(filter=filter, update=update)
-            print(f"Query result: {result}")
-            return result
+            print(f"matched count: {result.matched_count} modified count: {result.modified_count}")
+            return result.raw_result
         except errors.PyMongoError as e:
             raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
         
@@ -197,8 +196,8 @@ def delete_one(mongodb_uri: str, database_name: str, collection_name: str, filte
         try:
             print(f"Executing delete_one query with filter: {filter}")
             result = collection.delete_one(filter=filter)
-            print(f"Query result: {result}")
-            return result
+            print(f"Query result: {result.raw_result}")
+            return result.raw_result
         except errors.PyMongoError as e:
             raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
         
@@ -225,8 +224,8 @@ def delete_many(mongodb_uri: str, database_name: str, collection_name: str, filt
         try:
             print(f"Executing delete_many query with filter: {filter}")
             result = collection.delete_many(filter=filter)
-            print(f"Query result: {result}")
-            return result
+            print(f"Query result: {result.raw_result}")
+            return result.raw_result
         except errors.PyMongoError as e:
             raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
         
