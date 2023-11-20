@@ -65,6 +65,15 @@ def count(collection_name : str,filter : dict) -> Optional[Any]:
     # 2
     return result
 
+def random_valuve(collection_name : str,key_name : str) -> Optional[Any]:
+    result = core.random_valuve(mongodb_uri,database_name,collection_name,key_name)
+    # 64ca01272ec39bc754bb202f
+    return result
+
+def download_file(file_id : str) -> Optional[Any]:
+    result = core.download_file(mongodb_uri,database_name,file_id)
+    return result
+    
 # if __name__ == "__main__":
     # collection = 'collection'
     # filter = {"key":"value"}
