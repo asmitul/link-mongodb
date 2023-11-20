@@ -1,5 +1,6 @@
 from typing import Optional, List, Dict, Any
 from pymongo import MongoClient, errors
+import gridfs
 
 def find_one(mongodb_uri: str, database_name: str, collection_name: str, filter: Dict) -> Optional[Any]:
     """
@@ -373,4 +374,55 @@ def drop_index(mongodb_uri: str, database_name: str, collection_name: str, index
             return result
         except errors.PyMongoError as e:
             raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
-        
+
+
+def download_file(mongodb_uri: str, database_name: str, id: str):
+    """
+    Downloads a file from MongoDB using the provided MongoDB URI, database name, and file ID.
+
+    Args:
+        mongodb_uri (str): The URI of the MongoDB server.
+        database_name (str): The name of the database.
+        id (str): The ID of the file to download.
+
+    Returns:
+        str: The ID of the downloaded file.
+
+    Raises:
+        Exception: If an error occurs while querying the MongoDB collection.
+    """
+    print("Connecting to MongoDB server...")
+    with MongoClient(mongodb_uri) as client:
+        fs = gridfs.GridFS(client[database_name])
+        try:
+            file = fs.get(id)
+            with open(f'{id}', 'wb') as f:
+                f.write(file.read())
+            return id
+        except errors.PyMongoError as e:
+            raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
+
+def random_valuve(mongodb_uri: str, database_name: str, collection_name: str, key_name: str):
+    """
+    Retrieves a random value from a MongoDB collection.
+
+    Args:
+        mongodb_uri (str): The URI of the MongoDB server.
+        database_name (str): The name of the MongoDB database.
+        collection_name (str): The name of the MongoDB collection.
+        key_name (str): The key name of the value to retrieve from the document.
+
+    Returns:
+        The value associated with the specified key in a randomly selected document.
+
+    Raises:
+        Exception: If an error occurs while querying the MongoDB collection.
+    """
+    print("Connecting to MongoDB server...")
+    with MongoClient(mongodb_uri) as client:
+        collection = client[database_name][collection_name]
+        try:
+            document = collection.aggregate([{"$sample": {"size": 1}}]).next()
+            return document[key_name]
+        except errors.PyMongoError as e:
+            raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
