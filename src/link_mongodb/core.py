@@ -81,9 +81,9 @@ def insert_one(mongodb_uri: str, database_name: str, collection_name: str, docum
         try:
             print(f"Executing insert_one query with document: {document}")
             result = collection.insert_one(document)
-            result_dict = collection.find_one({"_id": result.inserted_id})
-            print(f"result: {result_dict}")
-            return result_dict
+            # result_dict = collection.find_one({"_id": result.inserted_id})
+            # print(f"result: {result_dict}")
+            return result
         except errors.PyMongoError as e:
             raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
         
@@ -111,7 +111,7 @@ def insert_many(mongodb_uri: str, database_name: str, collection_name: str, docu
             print(f"Executing insert_many query with documents: {documents}")
             result = collection.insert_many(documents)
             print(f"ids of the inserted document: {result.inserted_ids}")
-            return result.inserted_ids
+            return result
         except errors.PyMongoError as e:
             raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
         
@@ -142,6 +142,7 @@ def update_one(mongodb_uri: str, database_name: str, collection_name: str, filte
             result = collection.update_one(filter=filter, update=update)
             result_dict = result.raw_result
             print(f"result: {result_dict}")
+            return result
         except errors.PyMongoError as e:
             raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
 
@@ -170,7 +171,7 @@ def update_many(mongodb_uri: str, database_name: str, collection_name: str, filt
             print(f"Executing update_many query with filter: {filter} and update: {update}")
             result = collection.update_many(filter=filter, update=update)
             print(f"matched count: {result.matched_count} modified count: {result.modified_count}")
-            return result.raw_result
+            return result
         except errors.PyMongoError as e:
             raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
         
@@ -198,7 +199,7 @@ def delete_one(mongodb_uri: str, database_name: str, collection_name: str, filte
             print(f"Executing delete_one query with filter: {filter}")
             result = collection.delete_one(filter=filter)
             print(f"Query result: {result.raw_result}")
-            return result.raw_result
+            return result
         except errors.PyMongoError as e:
             raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
         
@@ -226,7 +227,7 @@ def delete_many(mongodb_uri: str, database_name: str, collection_name: str, filt
             print(f"Executing delete_many query with filter: {filter}")
             result = collection.delete_many(filter=filter)
             print(f"Query result: {result.raw_result}")
-            return result.raw_result
+            return result
         except errors.PyMongoError as e:
             raise Exception(f"An error occurred while querying the MongoDB collection: {str(e)}")
         
